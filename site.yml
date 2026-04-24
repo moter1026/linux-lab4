@@ -1,0 +1,71 @@
+---
+- name: Deploy HTTP service with systemd
+  hosts: lab4
+  become: yes
+  vars:
+    service_dir: /opt/lab4-service
+    html_dir: "{{ service_dir }}/html"
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - python3
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Create service directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+      loop:
+        - "{{ service_dir }}"
+        - "{{ html_dir }}"
+
+    - name: Deploy index.html
+      copy:
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head><title>Lab4 Linux 4 курс</title></head>
+          <body><h1>DevOps автоматизация - Пихуров</h1></body>
+          </html>
+        dest: "{{ html_dir }}/index.html"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy service.sh script
+      copy:
+        src: service.sh
+        dest: "{{ service_dir }}/service.sh"
+        mode: '0755'
+        owner: www-data
+        group: www-data
+
+    - name: Deploy systemd unit file
+      copy:
+        src: lab4-service.service
+        dest: /etc/systemd/system/lab4-service.service
+        mode: '0644'
+      notify: restart lab4-service
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start service
+      systemd:
+        name: lab4-service
+        enabled: yes
+        state: started
+
+  handlers:
+    - name: restart lab4-service
+      systemd:
+        name: lab4-service
+        state: restarted
