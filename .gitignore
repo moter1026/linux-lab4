@@ -1,0 +1,6 @@
+*.pyc
+__pycache__/
+.vagrant/
+*.log
+local_inventory.ini
+.ansible/
