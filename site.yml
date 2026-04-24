@@ -31,7 +31,10 @@
         content: |
           <!DOCTYPE html>
           <html>
-          <head><title>Lab4 Linux 4 курс</title></head>
+          <head>
+            <meta charset="UTF-8">
+            <title>Lab4 Linux 4 курс</title>
+          </head>
           <body><h1>DevOps автоматизация - Пихуров</h1></body>
           </html>
         dest: "{{ html_dir }}/index.html"
@@ -63,6 +66,14 @@
         name: lab4-service
         enabled: yes
         state: started
+
+    - name: Healthcheck - verify service responds with 200
+      uri:
+        url: http://127.0.0.1:8000/
+        status_code: 200
+        timeout: 5
+      register: result
+      failed_when: result.status != 200
 
   handlers:
     - name: restart lab4-service
