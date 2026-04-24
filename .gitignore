@@ -3,4 +3,5 @@ __pycache__/
 .vagrant/
 *.log
 local_inventory.ini
+inventory.ini
 .ansible/
